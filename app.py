@@ -9,6 +9,7 @@ import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func, desc,select
+import os
 from flask_sqlalchemy import SQLAlchemy
 
 import pandas as pd
@@ -38,8 +39,11 @@ session = Session(engine)
 ### Flask setup
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///DataSets/belly_button_biodiversity.sqlite'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///DataSets/belly_button_biodiversity.sqlite'
+#app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+  'DATABASE_URL', 'sqlite:///DataSets/belly_button_biodiversity.sqlite')
 
 db = SQLAlchemy(app)
 

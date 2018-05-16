@@ -83,11 +83,11 @@ function updateCharts(sampleData, otuData) {
 
     // Update the Bubble Chart with the new data
     var BUBBLE = document.getElementById('bubble');
-    Plotly.restyle(BUBBLE, 'x', [otu_IDs]);
+    Plotly.restyle(BUBBLE, 'x', [otuIDs]);
     Plotly.restyle(BUBBLE, 'y', [sampleValues]);
-    Plotly.restyle(BUBBLE, 'text', [lables]);
-    Plotly.restyle(BUBBLE, 'marker-size', [SampleValues]);
-    Plotly.restyle(BUBBLE,'marker-color', [otuIDs]);
+    Plotly.restyle(BUBBLE, 'text', [labels]);
+    Plotly.restyle(BUBBLE, 'marker.size', [sampleValues]);
+    Plotly.restyle(BUBBLE, 'marker.color', [otuIDs]);
 }
 
 
