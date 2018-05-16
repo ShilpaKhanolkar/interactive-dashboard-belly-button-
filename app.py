@@ -9,6 +9,7 @@ import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func, desc,select
+from flask_sqlalchemy import SQLAlchemy
 
 import pandas as pd
 import numpy as np
@@ -37,6 +38,11 @@ session = Session(engine)
 ### Flask setup
 app = Flask(__name__)
 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///DataSets/belly_button_biodiversity.sqlite'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
 
 
 # Create a route to return the dashboard homepage
@@ -48,7 +54,7 @@ def index ():
 @app.route('/names')
 def names():
     # Using Pandas, perform the SQL query
-    stmt = session.query(Samples).statement
+    stmt = db.session.query(Samples).statement
     df = pd.read_sql_query(stmt, session.bind)
     df.set_index("otu_id", inplace=True)
     nameList = list(df.columns)
@@ -68,7 +74,7 @@ def names():
 # Create a route to return a List of OTU descriptions.
 @app.route('/otu')
 def otu():
-    results = session.query(OTU.lowest_taxonomic_unit_found).all()
+    results = db.session.query(OTU.lowest_taxonomic_unit_found).all()
     # Use numpy ravel to extract list of tuples into a list of OTU descriptions
     otu_list = list(np.ravel(results))
 
@@ -88,7 +94,7 @@ def sample_metadata(sample):
     # sample[3:] will strip the BB_ prefix from the sample name BB_940 to match the 
     # SAMPLEID in this Samples_Metadata table
 
-    results = session.query(*sel).\
+    results = db.session.query(*sel).\
         filter(Samples_Metadata.SAMPLEID == sample[3:]).all()
 
     # create a dictionary for the metadata for each sample id
@@ -108,7 +114,7 @@ def sample_metadata(sample):
 # Create a route to return the Weekly Washing Frequency as a number.
 @app.route('/wfreq/<sample>')
 def sample_wfreq(sample):
-    results = session.query(Samples_Metadata.WFREQ).\
+    results = db.session.query(Samples_Metadata.WFREQ).\
         filter(Samples_Metadata.SAMPLEID == sample[3:]).all()
     wfreq = np.ravel(results)
 
@@ -119,7 +125,7 @@ def sample_wfreq(sample):
 # in the form of dicstionaries
 @app.route('/samples/<sample>')
 def samples(sample):
-    stmt = session.query(Samples).statement
+    stmt = db.session.query(Samples).statement
     df = pd.read_sql_query(stmt, session.bind)
 
     # Check if sample is in the columns or else give an error message
